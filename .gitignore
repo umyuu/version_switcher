@@ -1,0 +1,8 @@
+# chrome extension store upload zip files.
+*.zip
+
+.idea
+# dev note text
+note.txt
+# garbage box
+trash

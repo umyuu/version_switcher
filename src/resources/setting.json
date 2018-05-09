@@ -1,0 +1,7 @@
+{
+	"version": "1",
+    "docs": {
+        "8" : "https://docs.oracle.com/javase/jp/8/",
+        "7" : "https://docs.oracle.com/javase/jp/7/"
+    }
+}
