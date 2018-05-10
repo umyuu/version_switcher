@@ -1,0 +1,19 @@
+/* */
+.addon_version_switcher_overlay {
+  z-index: 2;
+  float: left;   
+}
+.addon_version_switcher_nav {
+	top: 30vh;
+  right: 0;
+  margin-right: 10;
+  border-radius: 0.12rem;
+  opacity: 0.75;
+}
+.addon_version_switcher_nav > span {
+  font-weight: bold; 
+  font-size: x-small;
+}
+.addon_version_switcher_nav > select {
+  border-radius: 0.5rem;
+}
