@@ -2,9 +2,16 @@
 (function()
 {
     'use strict';
-    const URL_VERSION_PARTS = 3;
+    const VERSION_STRINGS = /([\d.]+)\/(docs\/)?api/;
     let switcher = undefined;
+    let browser = chrome;
+    let template_html = undefined;
+
     class HtmlUtils {
+        /**
+         * @param {Map<string, string>} options
+         * @param {string} selected
+        */
         static create_selectBox(options, selected){
             const selectbox = document.createElement('select');
             // Todo:順序性は保証していない。
@@ -21,83 +28,115 @@
         }
     }
     class Switcher {
-        
         constructor() {
+            this.docs = undefined;
             this.docs = new Map([["10", "10/1"], ["9", "9/1"], ["8", "8/1"]
             ,["7", "7/0"], ["6", "6/0"], ["1.5.0", "1.5.0/0"]]);
-            this.version_str = /([\d.]+)\/(docs)*/;
-            this.version = this.version_str.exec(window.location.href);
+            this.url = new URL(window.location.href);
+            this.version = VERSION_STRINGS.exec(this.url.pathname);
             Object.seal(this);
         }
         generate() {
-            //const parts =this.split_url(new URL(window.location.href));
+
+            (async() => {
+                const response = await fetch(browser.extension.getURL("resources/template.html"));
+                const nav = document.createElement('div');
+                nav.innerHTML = await response.text();
+                const select_box = nav.children[0].children[0];
+                Array.from(select_box.options).filter(x => x.text === this.version[1])[0].selected = true;
+
+                select_box.addEventListener('change', (e) => {
+                    this.on_switch(e);
+                }, false);
+                window.addEventListener('scroll', (e) => {
+                    nav.setAttribute('display', e.currentTarget.pageYOffset > 50 ? 'none' : 'block');
+                }, false);
+                const header = document.querySelector("ul.navList");
+                if (header === null){
+                // Java 9 以前
+                    document.body.prepend(nav);
+                }else{
+                    header.after(nav);
+                }
+            })();
+
+
             // セレクトボックスを作成して、hrefのバージョン情報より初期選択を行う。
-            const select_box = HtmlUtils.create_selectBox(this.docs, this.version[1]);
-            const nav = document.createElement("nav");
-            nav.className = "version_switcher";
-            //nav.appendChild(document.createTextNode("Java » "));
-            nav.appendChild(select_box);
+            //const select_box = HtmlUtils.create_selectBox(this.docs, this.version[1]);
+            //const nav = document.createElement("nav");
+            //nav.className = "version_switcher";
+            //nav.style = "";
+            //nav.appendChild(document.createTextNode(" Java » "));
+            //nav.appendChild(select_box);
             //nav.appendChild(document.createTextNode("ドキュメント"));
             //nav.appendChild(document.createElement("hr"));
             
-            let header = document.querySelector("ul.navList");
-            if (header === null){
+            //let header = document.querySelector("ul.navList");
+            //if (header === null){
                 // Java 9 以前
-                document.body.prepend(nav);
-            }else{
-                header.after(nav);
-            }
+            //    document.body.prepend(nav);
+            //}else{
+            //    header.after(nav);
+            //}
             //
-            select_box.addEventListener('change', (e) => {
-                this.on_switch(e);
-            }, false);
+           // select_box.addEventListener('change', (e) => {
+           //     this.on_switch(e);
+           // }, false);
+           // window.addEventListener('scroll', (e) =>{
+           //     //nav.setAttribute('data-fixed', e.currentTarget.pageYOffset > 50 ? '1' : '0');
+           //     nav.setAttribute('display', e.currentTarget.pageYOffset > 50 ? 'none' : 'block');
+           //   }, false);
             return this;
         }
-        redirect_urls(original, new_version){
+        /**
+         * @param {URL} href
+         * @param {string} new_version
+        */
+        redirect_urls(href, new_version){
             /** regex test data.
                 https://docs.oracle.com/javase/7/docs/api/java/util/ArrayList.html
-                https://docs.oracle.com/javase/jp/7/api/java/util/ArrayList.html
-                https://docs.oracle.com/javase/jp/8/docs/api/java/util/ArrayList.html
+                https://docs.oracle.com/javase/jp/9/docs/api/java/util/ArrayList.html
+                https://docs.oracle.com/javase/jp/1.5.0/api/java/util/ArrayList.html
             */
-            const original_parts = this.docs.get(this.version[1]);
-            const new_parts = this.docs.get(new_version);
-
-            var temp = this.version[0].split('/');
-            temp[0] = new_version;
-            const mySet = new Map();
-            mySet.add(original.pathname.replace(this.version_str, temp.join('/')));
-
-
-            console.log(mySet);
-
-            if(new_parts.endsWith(original_parts.slice(-2))){
-                return original.pathname.replace(this.version_str, temp.join('/'));
+            let pathname = href.pathname;
+            let ar = ['/api', '/docs/api']
+                .map(x => pathname.replace(VERSION_STRINGS, new_version + x))
+                .filter((it, i, ar) => ar.indexOf(it) === i); // unique
+            
+            // i18n language codesだったら
+            if (pathname.split('/')[2] !== this.version[1]) {
+                if (parseInt(new_version) < 8) {
+                    return ar;
+                }
             }
-            if(new_parts.endsWith('/1')){
-                // 0→1
-                temp[1] = 'docs';
-            }else{
-                 // 1→0 docsを削除
-                temp.pop();
-            }
-            return original.pathname.replace(this.version_str, temp.join('/'));
+            //  docsを先頭に
+            return ar.reverse();
         }
-        to_redirect(new_url){
+        /**
+         * @param {URL[]} new_urls
+        */
+        to_redirect(new_urls){
             (async() => {
-                // リダイレクト先の存在チェック
-                const response = await fetch(new_url);
-                if(response.ok) {
-                    window.location.href = response.url;
-                }else{
-                    console.error(response.status, response.url);
+                const errs = [];
+                for(let i=0;i<new_urls.length;i++) {
+                    // リダイレクト先の存在チェック
+                    const response = await fetch(new_urls[i]);
+                    if(response.ok) {
+                        window.location.href = response.url;
+                    } else {
+                        errs.push(response);
+                    }
+                }
+                if(errs.length !== 0){
+                    console.error(errs.map(x => x.status + x.url));
                 }
             })();
         }
         on_switch(e) {
-            const url = new URL(window.location.href);
             const new_version = e.target.selectedOptions[0].text;
-            const new_url = new URL(this.redirect_urls(url, new_version), url.origin);
-
+            const new_urls = this.redirect_urls(this.url, new_version).map(x => new URL(x, this.url.origin));
+            console.log(new_urls);
+            this.to_redirect(new_urls);
         }
     }
     window.addEventListener('DOMContentLoaded', (e) => {

@@ -6,15 +6,16 @@
     "short_name": "__MSG_G_short_name__",
     "default_locale": "en",
 	"content_scripts": [{
-		"matches": [ "https://docs.oracle.com/javase/*"],
+		"matches": [ "https://docs.oracle.com/javase/*", "http://127.0.0.1/*"],
 		"js": [
             "js/version_switcher.js"
         ],
+        "css": ["css/style.css"],
 		"run_at": "document_start"
 	}],
 	"homepage_url": "https://github.com/umyuu/version_switcher",
     "web_accessible_resources":[
-        "resources/setting.json"
+        "resources/template.html"
     ],
 	"version": "1.0.0"
 }
