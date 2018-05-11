@@ -5,6 +5,7 @@
     const VERSION_STRINGS = /([\d.]+)\/(docs\/)?api/;
     let switcher = undefined;
     let browser = chrome;
+    let deltaY = 0;
     class Switcher {
         constructor() {
             this.url = new URL(window.location.href);
@@ -16,32 +17,34 @@
                 const response = await fetch(browser.extension.getURL("resources/template.html"));
                 if(!response.ok){
                     consol.error(response);
-                } 
+                }
                 const nav = document.createElement('div');
                 nav.classList.add("addon_version_switcher_div");
                 nav.innerHTML = await response.text();
-                const select_box = Array.from(nav.children[0].childNodes).filter(x => x.className === 'addon_version_switcher_select')[0];
+
+                const select_box = nav.querySelector('select');
                 // セレクトボックスの初期値を選択
                 const current_version = Array.from(select_box.options).find(x => x.value === this.version[1]);
                 if (current_version !== undefined){
                     current_version.selected = true;
                 }
+                // addEventHandler
                 select_box.addEventListener('change', (e) => {
                     e.stopPropagation();
                     this.on_switch(e);
                 }, false);
                 window.addEventListener('scroll', (e) => {
-                    const is_visible = e.currentTarget.pageYOffset > 50;
-                    if(is_visible){
-                        nav.classList.add('addon_version_switcher_overlay');
+                    let is_Hide = e.currentTarget.pageYOffset > 50;
+                    if (is_Hide){
+                        nav.classList.add('addon_version_switcher_hide');
                     }else{
-                        nav.classList.remove('addon_version_switcher_overlay');
+                        nav.classList.remove('addon_version_switcher_hide');
                     }
                 }, false);
+                //const header = document.querySelector("#rightIframe");
                 //const header = document.querySelector("ul.navList");
                 const header = null;
                 if (header === null){
-                // Java 9 以前
                     document.body.prepend(nav);
                 }else{
                     header.after(nav);

@@ -1,7 +1,8 @@
 /* */
-.addon_version_switcher_overlay {
-  z-index: 2;
-  float: left;   
+.addon_version_switcher_hide {
+  /*z-index: 2;*/
+  display: none;
+  
 }
 .addon_version_switcher_nav {
 	top: 30vh;
