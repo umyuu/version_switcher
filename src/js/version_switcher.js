@@ -64,10 +64,9 @@
                 .filter((it, i, ar) => ar.indexOf(it) === i); // unique
             
             // i18n language codesだったら
-            if (pathname.split('/')[2] !== this.version[1]) {
-                if (parseInt(new_version, 10) < 8) {
+            if ((pathname.split('/')[2] !== this.version[1])
+                && (parseFloat(new_version) < 8) ) {
                     return ar;
-                }
             }
             //  docsを先頭に
             return ar.reverse();
