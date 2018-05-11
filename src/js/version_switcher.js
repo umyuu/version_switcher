@@ -27,6 +27,7 @@
                     current_version.selected = true;
                 }
                 select_box.addEventListener('change', (e) => {
+                    e.stopPropagation();
                     this.on_switch(e);
                 }, false);
                 window.addEventListener('scroll', (e) => {
