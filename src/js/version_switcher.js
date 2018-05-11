@@ -22,7 +22,7 @@
                 nav.innerHTML = await response.text();
                 const select_box = Array.from(nav.children[0].childNodes).filter(x => x.className === 'addon_version_switcher_select')[0];
                 // セレクトボックスの初期値を選択
-                const opts = Array.from(select_box.options).filter(x => x.text === this.version[1]);
+                const opts = Array.from(select_box.options).filter(x => x.value === this.version[1]);
                 if (opts.length !== 0){
                     opts[0].selected = true;
                 }
@@ -93,7 +93,7 @@
             })();
         }
         on_switch(e) {
-            const new_version = e.target.selectedOptions[0].text;
+            const new_version = e.target.selectedOptions[0].value;
             const new_urls = this.redirect_urls(this.url, new_version).map(x => new URL(x, this.url.origin));
             this.to_redirect(new_urls);
         }
