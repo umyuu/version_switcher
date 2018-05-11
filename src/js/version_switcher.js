@@ -22,9 +22,9 @@
                 nav.innerHTML = await response.text();
                 const select_box = Array.from(nav.children[0].childNodes).filter(x => x.className === 'addon_version_switcher_select')[0];
                 // セレクトボックスの初期値を選択
-                const opts = Array.from(select_box.options).filter(x => x.value === this.version[1]);
-                if (opts.length !== 0){
-                    opts[0].selected = true;
+                const current_version = Array.from(select_box.options).find(x => x.value === this.version[1]);
+                if (current_version !== undefined){
+                    current_version.selected = true;
                 }
                 select_box.addEventListener('change', (e) => {
                     this.on_switch(e);
