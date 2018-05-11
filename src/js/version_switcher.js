@@ -16,31 +16,34 @@
                 const response = await fetch(browser.extension.getURL("resources/template.html"));
                 if(!response.ok){
                     consol.error(response);
-                } 
+                }
                 const nav = document.createElement('div');
                 nav.classList.add("addon_version_switcher_div");
                 nav.innerHTML = await response.text();
-                const select_box = Array.from(nav.children[0].childNodes).filter(x => x.className === 'addon_version_switcher_select')[0];
+
+                const select_box = nav.querySelector('select');
                 // セレクトボックスの初期値を選択
-                const opts = Array.from(select_box.options).filter(x => x.text === this.version[1]);
-                if (opts.length !== 0){
-                    opts[0].selected = true;
+                const current_version = Array.from(select_box.options).find(x => x.value === this.version[1]);
+                if (current_version !== undefined){
+                    current_version.selected = true;
                 }
+                // addEventHandler
                 select_box.addEventListener('change', (e) => {
+                    e.stopPropagation();
                     this.on_switch(e);
                 }, false);
                 window.addEventListener('scroll', (e) => {
-                    const is_visible = e.currentTarget.pageYOffset > 50;
-                    if(is_visible){
-                        nav.classList.add('addon_version_switcher_overlay');
+                    let is_Hide = e.currentTarget.pageYOffset > 50;
+                    if (is_Hide){
+                        nav.classList.add('addon_version_switcher_hide');
                     }else{
-                        nav.classList.remove('addon_version_switcher_overlay');
+                        nav.classList.remove('addon_version_switcher_hide');
                     }
                 }, false);
+                //const header = document.querySelector("#rightIframe");
                 //const header = document.querySelector("ul.navList");
                 const header = null;
                 if (header === null){
-                // Java 9 以前
                     document.body.prepend(nav);
                 }else{
                     header.after(nav);
@@ -64,10 +67,9 @@
                 .filter((it, i, ar) => ar.indexOf(it) === i); // unique
             
             // i18n language codesだったら
-            if (pathname.split('/')[2] !== this.version[1]) {
-                if (parseInt(new_version, 10) < 8) {
+            if ((pathname.split('/')[2] !== this.version[1])
+                && (parseFloat(new_version) < 8) ) {
                     return ar;
-                }
             }
             //  docsを先頭に
             return ar.reverse();
@@ -93,7 +95,7 @@
             })();
         }
         on_switch(e) {
-            const new_version = e.target.selectedOptions[0].text;
+            const new_version = e.target.selectedOptions[0].value;
             const new_urls = this.redirect_urls(this.url, new_version).map(x => new URL(x, this.url.origin));
             this.to_redirect(new_urls);
         }

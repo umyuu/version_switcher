@@ -17,5 +17,5 @@
     "web_accessible_resources":[
         "resources/template.html"
     ],
-	"version": "1.0.0"
+	"version": "1.0.1"
 }
