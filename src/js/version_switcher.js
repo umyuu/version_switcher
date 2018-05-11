@@ -5,7 +5,6 @@
     const VERSION_STRINGS = /([\d.]+)\/(docs\/)?api/;
     let switcher = undefined;
     let browser = chrome;
-    let deltaY = 0;
     class Switcher {
         constructor() {
             this.url = new URL(window.location.href);
