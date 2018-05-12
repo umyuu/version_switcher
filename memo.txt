@@ -1,19 +1,25 @@
-﻿------------------------------------------------------------
+﻿-------------------------------------------------------------------------------
 □Directory Deploy
-------------------------------------------------------------
+-------------------------------------------------------------------------------
 ./
-├ src/            … chrome extension program source Directory.
-│  ├ js/          … JavaScript files.
-│  ├ _locales/    … i18n file.
-│  ├ resources/   … Resources file initial settings.
-│  └ manifest.json… chrome extension manifest file.
+├ dist/                      … chrome extension published Directory.
+├ src/                       … chrome extension program source Directory.
+│  ├ _locales/               … i18n file.
+│  ├ css/                    … stylesheet file.
+│  │                         use resources/template.html
+│  ├ js/                     … JavaScript files.
+│  │  └ version_switcher.js  … Entry Point.
+│  ├ resources/              … Resources Directory.
+│  └ manifest.json           … chrome extension manifest file.
 │
-├ test/            … unit test Directory.
+├ test/                      … unit test Directory.
+│  └ unittest_server.py      … run unittest server.  Python Script.
 │
-├ memo.txt        … It is a file that is open now.
-├ LICENSE         … MIT license file.
-└ README.md       … github document root.
-------------------------------------------------------------
-□Entry Point
-------------------------------------------------------------
-src\js\version_switcher.js
+├ memo.txt                   … It is a file that is open now.
+├ LICENSE                    … MIT license file.
+└ README.md                  … github document root.
+-------------------------------------------------------------------------------
+□FAQ
+-------------------------------------------------------------------------------
+Q1,javaee url
+  => Not compatible.
