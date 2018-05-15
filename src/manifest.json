@@ -7,7 +7,7 @@
     "default_locale": "en",
 	"content_scripts": [{
 		"matches": [
-            "http://127.0.0.1/*",
+            "http://127.0.0.1/javase/*",
             "https://docs.oracle.com/javase/*"
         ],
 		"js": [
